@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>BI 업무시스템 리뉴얼 사용자 경험 설문조사</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Noto Sans KR', Arial, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 640px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 40px 28px 36px 28px;
+        }
+        h1 {
+            text-align: center;
+            color: #1656c1;
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 18px;
+            letter-spacing: -1px;
+        }
+        .desc {
+            text-align: center;
+            color: #474747;
+            font-size: 1.07em;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        .section {
+            font-weight: 500;
+            margin-top: 30px;
+            display: block;
+            font-size: 1.10em;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+        .required {
+            color: #e12424;
+            margin-left: 3px;
+            font-size: 1em;
+            font-weight: 700;
+        }
+        .likert-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 16px 0 34px 0;
+            gap: 6px;
+        }
+        .likert-row label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1 1 17%;
+            padding: 10px 2px 10px 2px;
+            cursor: pointer;
+            font-size: 1em;
+            border-radius: 8px;
+            transition: background 0.13s, border 0.13s;
+            border: 2px solid transparent;
+            position: relative;
+            min-width: 56px;
+            user-select: none;
+        }
+        .likert-row input[type="radio"] {
+            accent-color: #1656c1;
+            margin-bottom: 2px;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+        }
+        .likert-row label.selected,
+        .likert-row label:active {
+            background: #eaf2fd;
+            border-color: #1656c1;
+        }
+        .likert-row label span {
+            margin-top: 2px;
+            font-size: 0.92em;
+            color: #4b5d6b;
+            font-weight: 400;
+        }
+        .likert-row label .likert-desc {
+            font-size: 0.98em;
+            margin-top: 5px;
+            color: #1767d6;
+            font-weight: 500;
+        }
+        .likert-label-top {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.96em;
+            margin: 0 2px 4px 2px;
+            color: #425b99;
+            font-weight: 500;
+        }
+        textarea {
+            width: 100%;
+            min-height: 66px;
+            border: 1.4px solid #ccd4e1;
+            border-radius: 7px;
+            padding: 12px;
+            margin-top: 7px;
+            font-size: 1em;
+            resize: vertical;
+            background: #f7faff;
+            transition: border .18s;
+            line-height: 1.6;
+        }
+        textarea:focus {
+            border: 1.4px solid #1656c1;
+            outline: none;
+            background: #fff;
+        }
+        .char-limit {
+            text-align: right;
+            font-size: 0.93em;
+            color: #7b7b91;
+            margin-top: 2px;
+            margin-bottom: 2px;
+        }
+        .error-message {
+            color: #e12424;
+            font-size: 0.96em;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .submit-btn {
+            background: linear-gradient(90deg, #1865f2 85%, #1656c1 100%);
+            color: #fff;
+            border: none;
+            padding: 16px 0;
+            width: 100%;
+            border-radius: 7px;
+            font-size: 1.18em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 36px;
+            letter-spacing: 1.2px;
+            transition: background .18s;
+            box-shadow: 0 1px 3px rgba(24,101,242,0.14);
+        }
+        .submit-btn:hover, .submit-btn:focus {
+            background: linear-gradient(90deg, #134dc4 85%, #1656c1 100%);
+        }
+        .thankyou-message {
+            text-align: center;
+            padding: 60px 12px;
+            color: #1865f2;
+            font-size: 1.24em;
+            font-weight: 600;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 18px 2vw 18px 2vw;
+            }
+            h1 { font-size: 1.28em; }
+            .likert-row label { font-size: 0.92em; min-width: 44px;}
+        }
+        /* 접근성: 포커스 표시 */
+        .likert-row input[type="radio"]:focus + span,
+        textarea:focus {
+            outline: 2px solid #1656c1;
+            outline-offset: 3px;
+        }
+    </style>
+</head>
+<body>
+    <form class="container" id="surveyForm" action="#" method="post" autocomplete="off" novalidate>
+        <h1>BI 업무시스템 리뉴얼<br>사용자 경험 설문조사</h1>
+        <div class="desc">
+            아래 항목에 솔직하게 응답 부탁드립니다.<br>
+            <span style="color:#1865f2; font-weight:500;">(소요시간 약 2~3분)</span>
+        </div>
+        <div class="error-message" id="formError" role="alert" aria-live="assertive"></div>
+        <!-- Q1 -->
+        <fieldset style="border:0; padding:0; margin:0;">
+            <legend class="section" id="legend-overall">
+                1. <b>리뉴얼된 BI 시스템에 전반적으로 얼마나 만족하십니까?</b><span class="required">*</span>
+            </legend>
+            <div class="likert-label-top">
+                <span>1점(매우 불만족)</span>
+                <span>3점(보통)</span>
+                <span>5점(매우 만족)</span>
+            </div>
+            <div class="likert-row" data-likert="overall" role="radiogroup" aria-labelledby="legend-overall">
+                <label for="overall-1">
+                    <input type="radio" id="overall-1" name="overall" value="1" required>
+                    <span>1점</span>
+                    <span class="likert-desc">매우 불만족</span>
+                </label>
+                <label for="overall-2">
+                    <input type="radio" id="overall-2" name="overall" value="2">
+                    <span>2점</span>
+                </label>
+                <label for="overall-3">
+                    <input type="radio" id="overall-3" name="overall" value="3">
+                    <span>3점</span>
+                    <span class="likert-desc">보통</span>
+                </label>
+                <label for="overall-4">
+                    <input type="radio" id="overall-4" name="overall" value="4">
+                    <span>4점</span>
+                </label>
+                <label for="overall-5">
+                    <input type="radio" id="overall-5" name="overall" value="5">
+                    <span>5점</span>
+                    <span class="likert-desc">매우 만족</span>
+                </label>
+            </div>
+        </fieldset>
+        <!-- Q2 -->
+        <fieldset style="border:0; padding:0; margin:0;">
+            <legend class="section" id="legend-ui">
+                2. <b>디자인과 UI가 보기 쉽고<br>사용하기 편리하다고 느끼십니까?</b><span class="required">*</span>
+            </legend>
+            <div class="likert-label-top">
+                <span>1점(전혀 아니다)</span>
+                <span>3점(보통)</span>
+                <span>5점(매우 그렇다)</span>
+            </div>
+            <div class="likert-row" data-likert="ui" role="radiogroup" aria-labelledby="legend-ui">
+                <label for="ui-1">
+                    <input type="radio" id="ui-1" name="ui" value="1" required>
+                    <span>1점</span>
+                    <span class="likert-desc">전혀 아니다</span>
+                </label>
+                <label for="ui-2">
+                    <input type="radio" id="ui-2" name="ui" value="2">
+                    <span>2점</span>
+                </label>
+                <label for="ui-3">
+                    <input type="radio" id="ui-3" name="ui" value="3">
+                    <span>3점</span>
+                    <span class="likert-desc">보통</span>
+                </label>
+                <label for="ui-4">
+                    <input type="radio" id="ui-4" name="ui" value="4">
+                    <span>4점</span>
+                </label>
+                <label for="ui-5">
+                    <input type="radio" id="ui-5" name="ui" value="5">
+                    <span>5점</span>
+                    <span class="likert-desc">매우 그렇다</span>
+                </label>
+            </div>
+        </fieldset>
+        <!-- Q3 -->
+        <fieldset style="border:0; padding:0; margin:0;">
+            <legend class="section" id="legend-functionality">
+                3. <b>필요한 기능을 쉽게 찾고<br>사용할 수 있었습니까?</b><span class="required">*</span>
+            </legend>
+            <div class="likert-label-top">
+                <span>1점(전혀 아니다)</span>
+                <span>3점(보통)</span>
+                <span>5점(매우 그렇다)</span>
+            </div>
+            <div class="likert-row" data-likert="functionality" role="radiogroup" aria-labelledby="legend-functionality">
+                <label for="functionality-1">
+                    <input type="radio" id="functionality-1" name="functionality" value="1" required>
+                    <span>1점</span>
+                    <span class="likert-desc">전혀 아니다</span>
+                </label>
+                <label for="functionality-2">
+                    <input type="radio" id="functionality-2" name="functionality" value="2">
+                    <span>2점</span>
+                </label>
+                <label for="functionality-3">
+                    <input type="radio" id="functionality-3" name="functionality" value="3">
+                    <span>3점</span>
+                    <span class="likert-desc">보통</span>
+                </label>
+                <label for="functionality-4">
+                    <input type="radio" id="functionality-4" name="functionality" value="4">
+                    <span>4점</span>
+                </label>
+                <label for="functionality-5">
+                    <input type="radio" id="functionality-5" name="functionality" value="5">
+                    <span>5점</span>
+                    <span class="likert-desc">매우 그렇다</span>
+                </label>
+            </div>
+        </fieldset>
+        <!-- Q4 -->
+        <fieldset style="border:0; padding:0; margin:0;">
+            <legend class="section" id="legend-performance">
+                4. <b>시스템의 속도와 안정성에 만족하십니까?</b><span class="required">*</span>
+            </legend>
+            <div class="likert-label-top">
+                <span>1점(매우 불만족)</span>
+                <span>3점(보통)</span>
+                <span>5점(매우 만족)</span>
+            </div>
+            <div class="likert-row" data-likert="performance" role="radiogroup" aria-labelledby="legend-performance">
+                <label for="performance-1">
+                    <input type="radio" id="performance-1" name="performance" value="1" required>
+                    <span>1점</span>
+                    <span class="likert-desc">매우 불만족</span>
+                </label>
+                <label for="performance-2">
+                    <input type="radio" id="performance-2" name="performance" value="2">
+                    <span>2점</span>
+                </label>
+                <label for="performance-3">
+                    <input type="radio" id="performance-3" name="performance" value="3">
+                    <span>3점</span>
+                    <span class="likert-desc">보통</span>
+                </label>
+                <label for="performance-4">
+                    <input type="radio" id="performance-4" name="performance" value="4">
+                    <span>4점</span>
+                </label>
+                <label for="performance-5">
+                    <input type="radio" id="performance-5" name="performance" value="5">
+                    <span>5점</span>
+                    <span class="likert-desc">매우 만족</span>
+                </label>
+            </div>
+        </fieldset>
+        <!-- Q5 -->
+        <label class="section" for="good">
+            5. <b>리뉴얼된 시스템에서 <u>가장 만족스러웠던 점</u>을 알려주세요.</b>
+        </label>
+        <textarea id="good" name="good" placeholder="예: 데이터 시각화가 더 보기 쉬워졌어요." maxlength="300" oninput="updateCount(this)" aria-describedby="good-count"></textarea>
+        <div class="char-limit" id="good-count">0/300자</div>
+        <!-- Q6 -->
+        <label class="section" for="improve">
+            6. <b>개선이 필요하거나 불편했던 점</b>을 적어주세요.
+        </label>
+        <textarea id="improve" name="improve" placeholder="예: 검색 속도가 느릴 때가 있어요." maxlength="300" oninput="updateCount(this)" aria-describedby="improve-count"></textarea>
+        <div class="char-limit" id="improve-count">0/300자</div>
+        <!-- Q7 -->
+        <label class="section" for="suggestion">
+            7. <b>추가로 건의하실 사항</b>이 있으시면 자유롭게 작성해주세요.
+        </label>
+        <textarea id="suggestion" name="suggestion" placeholder="기타 의견이 있다면 입력해주세요." maxlength="300" oninput="updateCount(this)" aria-describedby="suggestion-count"></textarea>
+        <div class="char-limit" id="suggestion-count">0/300자</div>
+        <button class="submit-btn" type="submit" aria-label="설문 제출">제출하기</button>
+    </form>
+    <div class="thankyou-message" id="thankyou" style="display:none;" tabindex="0">
+        설문에 응해주셔서 감사합니다!<br>소중한 의견을 반영하겠습니다.
+    </div>
+    <script>
+        // Likert 선택 시 라벨 배경 강조
+        document.querySelectorAll('.likert-row').forEach(function(row){
+            row.querySelectorAll('input[type=radio]').forEach(function(radio){
+                radio.addEventListener('change', function(){
+                    row.querySelectorAll('label').forEach(function(l){ l.classList.remove('selected'); });
+                    radio.parentElement.classList.add('selected');
+                });
+                // 최초 로딩시 체크된 값에도 selected 클래스 부여
+                if (radio.checked) {
+                    radio.parentElement.classList.add('selected');
+                }
+            });
+        });
+
+        // 텍스트영역 글자수 카운트
+        function updateCount(el) {
+            var id = el.name + '-count';
+            var count = el.value.length;
+            var counter = document.getElementById(id);
+            if (counter) {
+                counter.textContent = count + "/300자";
+            }
+        }
+        document.querySelectorAll('textarea').forEach(function(t){
+            t.dispatchEvent(new Event('input'));
+        });
+
+        // 폼 유효성 검사 및 제출 처리
+        document.getElementById('surveyForm').addEventListener('submit', function(e){
+            e.preventDefault();
+            var errorMsg = '';
+            var requiredRadios = ['overall','ui','functionality','performance'];
+            for (var i=0; i<requiredRadios.length; i++) {
+                var checked = document.querySelector('input[name="'+requiredRadios[i]+'"]:checked');
+                if(!checked){
+                    errorMsg = '필수 질문에 모두 응답해 주세요.';
+                    break;
+                }
+            }
+            document.querySelectorAll('textarea').forEach(function(t){
+                if(t.value.length > 300){
+                    errorMsg = '서술형 답변은 300자 이내로 입력해 주세요.';
+                }
+            });
+            var errorDiv = document.getElementById('formError');
+            if(errorMsg){
+                errorDiv.textContent = errorMsg;
+                errorDiv.style.display = 'block';
+                errorDiv.setAttribute('tabindex', '-1');
+                errorDiv.focus();
+                // 첫번째 미응답 라디오그룹으로 이동(접근성)
+                for (var i=0; i<requiredRadios.length; i++) {
+                    var checked = document.querySelector('input[name="'+requiredRadios[i]+'"]:checked');
+                    if(!checked){
+                        var legend = document.getElementById('legend-'+requiredRadios[i]);
+                        if (legend) {
+                            legend.scrollIntoView({behavior:'smooth', block:'center'});
+                        }
+                        break;
+                    }
+                }
+                return false;
+            } else {
+                errorDiv.style.display = 'none';
+            }
+            document.getElementById('surveyForm').style.display = 'none';
+            var thankyou = document.getElementById('thankyou');
+            thankyou.style.display = 'block';
+            thankyou.focus();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+            // 서버 제출 필요시 아래 코드 사용:
+            // this.submit();
+            return false;
+        });
+
+        // 키보드 접근성: 라디오 그룹 키보드 내비게이션 지원
+        document.querySelectorAll('.likert-row').forEach(function(row){
+            var radios = row.querySelectorAll('input[type=radio]');
+            row.addEventListener('keydown', function(e){
+                var checkedIndex = Array.prototype.findIndex.call(radios, function(radio){return radio.checked});
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    var prev = checkedIndex > 0 ? checkedIndex-1 : radios.length-1;
+                    radios[prev].focus();
+                    radios[prev].checked = true;
+                    radios[prev].dispatchEvent(new Event('change'));
+                } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    var next = checkedIndex < radios.length-1 && checkedIndex !== -1 ? checkedIndex+1 : 0;
+                    radios[next].focus();
+                    radios[next].checked = true;
+                    radios[next].dispatchEvent(new Event('change'));
+                }
+            });
+        });
+    </script>
+</body>
+</html>
