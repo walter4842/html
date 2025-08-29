@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>부서 업무 칸반 관리 - 개선버전</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --secondary: #f9fafb;
+      --bg: #f3f4f6;
+      --card: #fff;
+      --text: #1e293b;
+      --grey: #64748b;
+      --border: #e5e7eb;
+      --drag: #dbeafe;
+      --accent: #4f46e5;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --info: #06b6d4;
+      --review: #facc15;
+      --shadow1: 0 2px 14px #23388411;
+      --shadow2: 0 2px 22px #282f4311;
+      --shadow3: 0 4px 22px #6366f127;
+      --shadow4: 0 12px 38px #2563eb1a;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100%;
+    }
+    body { min-height: 100vh; display: flex; flex-direction: column;}
+    header {
+      background: linear-gradient(90deg,#2563eb 86%,#6366f1 110%);
+      color: #fff;
+      padding: 22px 0 12px 0;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: var(--shadow1);
+    }
+    header h1 {
+      margin: 0 0 6px 0;
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      display: flex; justify-content: center; align-items: center; gap: 7px;
+      background: linear-gradient(87deg,#fff 8%,#c7d2fe 40%,#818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    header .subtitle {
+      font-size: 1.09rem;
+      font-weight: 400;
+      letter-spacing: 0.2px;
+      opacity: 0.95;
+    }
+    .container {
+      flex: 1;
+      max-width: 1380px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 28px 20px 36px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    .team-bar-label {font-weight:600;color:var(--primary);font-size:1.05rem;margin-right:3px;}
+    .team-list {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .team-member {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: linear-gradient(90deg,#e0e7ff 0%,#f9fafb 100%);
+      color: var(--primary);
+      padding: 4px 13px 4px 5px;
+      border-radius: 80px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 2px 0;
+      box-shadow:0 1px 7px #24366613;
+      border:1.3px solid var(--primary);
+      position:relative;
+      transition:.19s;
+      font-weight:600;
+    }
+    .team-member .profile {
+      width: 24px; height: 24px; object-fit: cover;
+      border-radius: 50%; border:2px solid #fff; box-shadow:0 1px 4px #3332;
+    }
+    .team-member .remove {
+      font-size: 1.12rem; margin-left: 1px; color: var(--danger); display: none;
+      cursor:pointer;
+    }
+    .team-member:hover { box-shadow:0 1px 10px #0001; background:linear-gradient(90deg,#dbeafe 0%,#e0e7ff 100%);}
+    .team-member:hover .remove { display: inline;}
+    .add-team-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(90deg,#6366f1 60%,#2563eb 120%);
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      padding: 7px 22px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1rem;
+      box-shadow:0 1px 10px #2436660e;
+      transition: background .16s;
+    }
+    .add-team-btn:hover { background: linear-gradient(90deg,#818cf8 60%,#2563eb 120%);}
+    .new-team-form {
+      display: none;
+      gap: 7px;
+      align-items: center;
+      background: var(--card);
+      padding:7px 14px 7px 10px;
+      border-radius:18px;
+      box-shadow:0 2px 12px #bbc9fa0f;
+      border:1.5px solid var(--primary);
+      animation:fadein .18s;
+    }
+    .new-team-form input {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 6px 10px;
+      font-size: 1rem;
+      min-width: 80px;
+      background:#fff;
+      margin:0 2px;
+      font-weight:500;
+      transition: border .14s;
+    }
+    .new-team-form input:focus {border:1.5px solid var(--accent);}
+    .new-team-form input[type='url'] {min-width:100px;max-width:190px;}
+    .new-team-form button {
+      background: linear-gradient(90deg,#6366f1 60%,#2563eb 120%);
+      color: #fff;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.99rem;
+      font-weight:600;
+      transition:.14s;
+    }
+    .new-team-form .cancel-btn { background: var(--grey);}
+    /* 칸반 보드 */
+    .kanban-board {
+      display: flex;
+      gap: 26px;
+      width: 100%;
+      overflow-x: auto;
+      min-height: 510px;
+      padding-bottom: 4px;
+      scroll-behavior: smooth;
+    }
+    .kanban-column {
+      background: var(--card);
+      border-radius: 24px;
+      padding: 24px 14px 14px 18px;
+      min-width: 320px;
+      max-width: 370px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow2);
+      border:1.5px solid var(--border);
+      transition:border .17s, box-shadow .13s, background .15s;
+      position: relative;
+      overflow: visible;
+    }
+    .kanban-column.drag-over {
+      border: 2.5px solid var(--primary);
+      background: var(--drag);
+      box-shadow:var(--shadow4);
+    }
+    .kanban-column h2 {
+      font-size: 1.18rem;
+      font-weight: 800;
+      margin: 0 0 16px 0;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color:var(--primary);
+      background:linear-gradient(90deg,#6366f1 10%,#facc15 70%,#22c55e 110%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .kanban-column .count {
+      background: var(--bg);
+      color: var(--primary);
+      font-size: 0.97rem;
+      padding: 3px 12px;
+      border-radius: 15px;
+      font-weight: 800;
+      margin-left:7px;
+      border:1px solid var(--primary);
+      box-shadow:0 2px 6px #2563eb0a;
+    }
+    .task-list {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      min-height: 30px;
+    }
+    .task-card {
+      position: relative;
+      background: var(--secondary);
+      border-radius: 11px;
+      box-shadow: 0 2px 12px #2563eb10;
+      padding: 13px 11px 9px 13px;
+      cursor: grab;
+      user-select: none;
+      transition: box-shadow .18s, border .13s, background .10s;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      border: 1.8px solid transparent;
+      font-weight:500;
+    }
+    .task-card.dragging {
+      opacity: 0.68;
+      border: 1.7px dashed var(--primary);
+      background: #e0e7ff;
+      box-shadow: 0 7px 32px #2563eb33;
+    }
+    .task-card:hover { box-shadow:var(--shadow3); border:1.7px solid #818cf8; background:#e0e7ff;}
+    .task-card:active { cursor:grabbing;}
+    .task-title {
+      font-size: 1.13rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color:var(--accent);
+      margin-bottom:3px;
+      background:linear-gradient(90deg,#818cf8 40%,#818cf8 80%,#1e293b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .task-tags {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      font-size: 0.93rem;
+      background: #ede9fe;
+      color: var(--accent);
+      border-radius: 13px;
+      padding: 3px 10px 2px 9px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      border:1px solid #a5b4fc;
+    }
+    .task-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 3px;
+      gap: 8px;
+    }
+    .assigned {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 1rem;
+      color: var(--primary);
+      background: #e0e7ffa0;
+      padding:1px 9px 1px 2px;
+      border-radius:15px;
+    }
+    .assigned .profile {
+      width: 21px;
+      height: 21px;
+      border-radius: 50%;
+      object-fit: cover;
+      border:1.5px solid var(--primary);
+      box-shadow:0 1px 4px #2563eb18;
+    }
+    .due {
+      font-size: 0.95rem;
+      color: var(--review);
+      font-weight: 700;
+      margin-left: 8px;
+      background: #fef9c3c0;
+      padding:1px 8px;
+      border-radius:11px;
+      border:1px solid #fde047;
+    }
+    .del-task-btn {
+      position: absolute;
+      top: 8px; right: 10px;
+      background: transparent;
+      border: none;
+      color: var(--danger);
+      font-size: 1.18rem;
+      cursor: pointer;
+      display: none;
+      z-index:10;
+    }
+    .task-card:hover .del-task-btn { display: block;}
+    .desc {
+      font-size: .98rem;
+      color: var(--grey);
+      margin-left:2px;margin-bottom:2px;
+      font-weight:500;
+    }
+    .add-task-btn {
+      margin-top: 14px;
+      background: linear-gradient(90deg,#6366f1 65%,#2563eb 120%);
+      color: #fff;
+      border: none;
+      border-radius: 13px;
+      padding: 9px 0 8px 0;
+      font-size: 1.04rem;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: background .19s;
+      margin-bottom:2px;
+    }
+    .add-task-btn:hover { background: #4338ca;}
+    .new-task-form {
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+      margin-top: 13px;
+      background: var(--bg);
+      border-radius: 11px;
+      padding: 12px 10px 10px 10px;
+      box-shadow:0 2px 12px #a4bbff16;
+      border:1.2px solid var(--primary);
+      animation:fadein .3s;
+    }
+    @keyframes fadein {from{opacity:0;}to{opacity:1;}}
+    .new-task-form input,.new-task-form textarea,.new-task-form select {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 7px 9px;
+      outline: none;
+      font-size: 1rem;
+      resize: none;
+      margin-bottom: 1px;
+      font-family: inherit;
+      background: #fff;
+      font-weight:500;
+      transition: border .14s;
+    }
+    .new-task-form input:focus, .new-task-form textarea:focus, .new-task-form select:focus {border:1.5px solid var(--accent);}
+    .new-task-form .tag-input {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 0;
+    }
+    .new-task-form .tag {
+      background: #fff;
+      color: var(--accent);
+      border:1px solid #aaa6f6;
+      display:flex;
+      align-items:center;
+      padding-right:4px;
+      font-size:.94em;
+    }
+    .new-task-form .tag .remove-tag {
+      color: var(--danger);
+      font-size: 0.93rem;
+      cursor: pointer;
+      margin-left: 3px;
+      margin-top: 1px;
+    }
+    .new-task-form .tag-add-input {
+      border: none;
+      outline: none;
+      font-size: 0.93rem;
+      min-width: 40px;
+      background: transparent;
+    }
+    .new-task-form-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .new-task-form button {
+      background: linear-gradient(90deg,#6366f1 60%,#2563eb 120%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 6.5px 15px;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow:0 1px 6px #6366f118;
+      font-weight:600;
+      transition:background .14s;
+    }
+    .new-task-form .cancel-btn { background: #888;}
+    /* 스크롤바 custom */
+    ::-webkit-scrollbar {height: 9px;width:10px;}
+    ::-webkit-scrollbar-thumb {background:#d4d9e6;border-radius:7px;}
+    ::-webkit-scrollbar-track {background:transparent;}
+    /* 모바일 반응형 */
+    @media (max-width: 900px) {
+      .kanban-board {gap: 14px;}
+      .kanban-column {min-width: 240px;max-width: 305px;}
+      .container {padding:16px 2vw;}
+      .top-bar {gap:12px;flex-direction:column;align-items:flex-start;}
+    }
+    @media (max-width: 600px) {
+      header {padding:12px 0 9px 0;}
+      header h1 {font-size: 1.18rem;}
+      .container {padding: 10px 1px;}
+      .kanban-board {gap: 8px;}
+      .kanban-column {min-width: 93vw; max-width: 98vw; padding: 10px 4px;}
+      .task-card {padding: 9px 5px 7px 8px;}
+      .add-team-btn, .team-member {font-size:0.97rem;}
+    }
+    @media (max-width:390px) {
+      .kanban-column {min-width: 99vw;}
+    }
+    .add-team-btn:active, .add-task-btn:active {transform:scale(0.97);}
+    /* 개선: 업무 담당자별 필터 */
+    .team-filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+      font-size: 0.98rem;
+    }
+    .team-filter-btn {
+      border: 1.5px solid var(--primary);
+      background: var(--secondary);
+      color: var(--primary);
+      border-radius: 22px;
+      padding: 3px 16px 3px 7px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: background .16s, color .14s;
+    }
+    .team-filter-btn.selected, .team-filter-btn:hover {
+      background: linear-gradient(90deg,#6366f1 60%,#2563eb 120%);
+      color: #fff;
+    }
+    .team-filter-btn .profile {
+      width: 19px; height: 19px; border-radius: 50%; border:1px solid #fff;
+      object-fit:cover;
+      box-shadow:0 1px 4px #2563eb12;
+    }
+    .team-filter-btn .all {font-size:1.15em;}
+  </style>
+</head>
+<body>
+  <header>
+    <h1><i class="uil uil-trello"></i> 부서 업무 칸반 관리</h1>
+    <div class="subtitle">팀원별 업무를 실시간, 트렌디하게 관리하세요! <span style="font-size:0.93em;opacity:0.78">(드래그 앤 드롭)</span></div>
+  </header>
+  <main class="container">
+    <section class="top-bar">
+      <div>
+        <span class="team-bar-label">팀원</span>
+        <div class="team-list" id="teamList"></div>
+      </div>
+      <button class="add-team-btn" id="openAddMember"><i class="uil uil-user-plus"></i> 팀원 추가</button>
+      <form class="new-team-form" id="newTeamForm" autocomplete="off">
+        <input type="text" placeholder="이름" required id="newTeamName" autocomplete="off">
+        <input type="url" placeholder="프로필URL(선택)" id="newTeamImg" autocomplete="off">
+        <button type="submit">추가</button>
+        <button type="button" class="cancel-btn" id="cancelAddMember">취소</button>
+      </form>
+    </section>
+    <section class="team-filter-bar" id="teamFilterBar">
+      <!-- Filter buttons generated by JS -->
+    </section>
+    <section class="kanban-board" id="kanbanBoard">
+      <!-- Kanban columns/cards generated by JS -->
+    </section>
+  </main>
+<script>
+const statusColors = {
+  todo: 'var(--primary)',
+  progress: 'var(--accent)',
+  review: 'var(--review)',
+  done: 'var(--success)'
+};
+let teamMembers = [
+  {id:1, name:"홍길동", img:"https://randomuser.me/api/portraits/men/32.jpg"},
+  {id:2, name:"김철수", img:"https://randomuser.me/api/portraits/men/41.jpg"},
+  {id:3, name:"이영희", img:"https://randomuser.me/api/portraits/women/65.jpg"},
+  {id:4, name:"박서준", img:"https://randomuser.me/api/portraits/men/77.jpg"},
+  {id:5, name:"최민지", img:"https://randomuser.me/api/portraits/women/17.jpg"}
+];
+const columns = [
+  { key:"todo", label:"할 일", icon:"uil-notes"},
+  { key:"progress", label:"진행 중", icon:"uil-sync"},
+  { key:"review", label:"검토", icon:"uil-eye"},
+  { key:"done", label:"완료", icon:"uil-check-circle"}
+];
+let tasks = [
+  {
+    id:1001, title:"월간 보고서 작성", desc:"지난달 실적 정리 및 보고용 자료 작성",
+    tags:["보고서","문서"], assigned:1, due:"2024-06-28", status:"todo"
+  },
+  {
+    id:1002, title:"UI 디자인 시안 검토", desc:"신규 서비스 모바일 UI 검토",
+    tags:["디자인","검토"], assigned:3, due:"2024-06-25", status:"review"
+  },
+  {
+    id:1003, title:"DB 백업 점검", desc:"정기 백업 및 복구 테스트 진행",
+    tags:["백업","DB"], assigned:2, due:"2024-06-20", status:"done"
+  },
+  {
+    id:1004, title:"캠페인 기획안 작성", desc:"여름 마케팅 캠페인 기획안 초안 준비",
+    tags:["기획","마케팅"], assigned:4, due:"2024-06-27", status:"progress"
+  },
+  {
+    id:1005, title:"고객 CS 응대 매뉴얼 업데이트", desc:"신규 FAQ 반영 및 문서 개선",
+    tags:["문서","CS"], assigned:5, due:"2024-06-29", status:"todo"
+  }
+];
+
+let filterAssigned = 'all';
+
+// ===== 팀원 관리 =====
+function renderTeamList() {
+  const list = document.getElementById('teamList');
+  list.innerHTML = '';
+  if(!teamMembers.length) {
+    list.innerHTML = `<span style="color:#888;font-size:.99rem;">- 없음 -</span>`;
+    return;
+  }
+  teamMembers.forEach(member => {
+    const div = document.createElement('div');
+    div.className = "team-member";
+    div.title = `업무 담당 : ${member.name}`;
+    div.innerHTML = `
+      <img class="profile" src="${member.img || 'https://randomuser.me/api/portraits/lego/1.jpg'}" alt="${member.name}">
+      <span>${member.name}</span>
+      <span class="remove" title="삭제" data-id="${member.id}"><i class="uil uil-times-circle"></i></span>
+    `;
+    div.querySelector('.remove').onclick = (e)=>{
+      e.stopPropagation();
+      if(!confirm(`${member.name} 팀원을 삭제할까요?\n(담당업무는 무지정)`)) return;
+      tasks.forEach(task=>{ if(task.assigned===member.id) task.assigned=0; });
+      teamMembers = teamMembers.filter(m=>m.id!==member.id);
+      // 필터가 삭제된 팀원이면 전체로 전환
+      if(filterAssigned === String(member.id)) filterAssigned = 'all';
+      renderTeamList(); renderTeamFilterBar(); renderKanban();
+    };
+    list.appendChild(div);
+  });
+}
+
+// === 담당자별 필터 버튼 ===
+function renderTeamFilterBar() {
+  const bar = document.getElementById('teamFilterBar');
+  bar.innerHTML = '';
+  // "전체" 버튼
+  const allBtn = document.createElement('button');
+  allBtn.className = "team-filter-btn" + (filterAssigned==='all' ? ' selected':'');
+  allBtn.innerHTML = `<i class="uil uil-apps all"></i> 전체`;
+  allBtn.onclick = ()=>{ filterAssigned='all'; renderTeamFilterBar(); renderKanban(); };
+  bar.appendChild(allBtn);
+  // 팀원별
+  teamMembers.forEach(member=>{
+    const btn = document.createElement('button');
+    btn.className = "team-filter-btn" + (filterAssigned===String(member.id) ? ' selected':'');
+    btn.innerHTML = `<img class="profile" src="${member.img}" alt=""> ${member.name}`;
+    btn.onclick = ()=>{ filterAssigned=String(member.id); renderTeamFilterBar(); renderKanban(); };
+    bar.appendChild(btn);
+  });
+  // 미지정
+  const noBtn = document.createElement('button');
+  noBtn.className = "team-filter-btn" + (filterAssigned==='0' ? ' selected':'');
+  noBtn.innerHTML = `<i class="uil uil-user-exclamation"></i> 미지정`;
+  noBtn.onclick = ()=>{ filterAssigned='0'; renderTeamFilterBar(); renderKanban(); };
+  bar.appendChild(noBtn);
+}
+
+// ===== 팀원 추가/삭제 =====
+const openAddMemberBtn = document.getElementById('openAddMember');
+const newTeamForm = document.getElementById('newTeamForm');
+const cancelAddMember = document.getElementById('cancelAddMember');
+openAddMemberBtn.onclick = () => {
+  newTeamForm.style.display = 'flex';
+  openAddMemberBtn.style.display = 'none';
+  document.getElementById('newTeamName').focus();
+};
+cancelAddMember.onclick = ()=>{
+  newTeamForm.style.display = 'none';
+  openAddMemberBtn.style.display = 'inline-flex';
+  newTeamForm.reset();
+};
+newTeamForm.onsubmit = function(e){
+  e.preventDefault();
+  const name = document.getElementById('newTeamName').value.trim();
+  const img = document.getElementById('newTeamImg').value.trim();
+  if(!name) return alert('이름을 입력해주세요.');
+  if(teamMembers.some(m=>m.name===name)) {alert('동일 이름 팀원이 있습니다. 이름을 구분해주세요.'); return;}
+  const newId = Date.now();
+  teamMembers.push({
+    id:newId,
+    name,
+    img: img || `https://randomuser.me/api/portraits/lego/${Math.floor(Math.random()*10+1)}.jpg`
+  });
+  renderTeamList();
+  renderTeamFilterBar();
+  cancelAddMember.onclick();
+};
+
+// ======== 업무(카드) 관리 및 렌더링 =======
+function renderKanban() {
+  const board = document.getElementById('kanbanBoard');
+  board.innerHTML = '';
+  columns.forEach(col=>{
+    const colDiv = document.createElement('div');
+    colDiv.className = "kanban-column";
+    colDiv.dataset.col = col.key;
+    let colTasks = tasks.filter(t=>t.status===col.key);
+    // filter 적용
+    if(filterAssigned !== 'all') {
+      colTasks = colTasks.filter(t=>String(t.assigned) === String(filterAssigned));
+    }
+    colDiv.innerHTML = `
+      <h2 style="color:${statusColors[col.key]};">
+        <i class="uil ${col.icon}" style="font-size:1.38em;color:${statusColors[col.key]};"></i>
+        ${col.label} <span class="count">${colTasks.length}</span>
+      </h2>
+      <div class="task-list"></div>
+      <button class="add-task-btn" title="업무 생성하기"><i class="uil uil-plus"></i> 업무 추가</button>
+    `;
+    const taskList = colDiv.querySelector('.task-list');
+    colTasks.forEach(task=>{
+      taskList.appendChild(makeTaskCard(task, col.key));
+    });
+    colDiv.querySelector('.add-task-btn').onclick = ()=>showNewTaskForm(col.key, colDiv);
+    board.appendChild(colDiv);
+    makeDraggableColumn(colDiv);
+  });
+}
+
+function makeTaskCard(task, status) {
+  const card = document.createElement('div');
+  card.className = "task-card";
+  card.draggable = true;
+  card.dataset.id = task.id;
+  card.style.borderColor=statusColors[status];
+  card.innerHTML = `
+    <div class="task-title" title="${escapeHTML(task.title)}">${escapeHTML(task.title)}</div>
+    <div class="desc">${escapeHTML(task.desc)}</div>
+    <div class="task-tags">${task.tags.map(tag=>`<span class="tag">${escapeHTML(tag)}</span>`).join('')}</div>
+    <div class="task-footer">
+      <div class="assigned">
+        ${task.assigned? `<img class="profile" src="${getMemberImg(task.assigned)}" alt=""> <span>${getMemberName(task.assigned)}</span>` : '<i class="uil uil-user-exclamation"></i><span>미지정</span>'}
+      </div>
+      ${task.due? `<span class="due"><i class="uil uil-calendar-alt"></i> ${task.due}</span>` : ''}
+    </div>
+    <button class="del-task-btn" title="업무 삭제"><i class="uil uil-trash-alt"></i></button>
+  `;
+  card.querySelector('.del-task-btn').onclick = (e)=>{
+    e.stopPropagation();
+    if(confirm('이 업무를 삭제할까요?')) {
+      tasks = tasks.filter(t=>t.id!==task.id);
+      renderKanban();
+    }
+  };
+  card.ondragstart = (e)=>{
+    card.classList.add('dragging');
+    e.dataTransfer.setData('text/plain', task.id);
+    setTimeout(()=>card.classList.add('hide'),0);
+  };
+  card.ondragend = ()=>{
+    card.classList.remove('dragging','hide');
+  };
+  return card;
+}
+
+function showNewTaskForm(colKey, colDiv) {
+  if(colDiv.querySelector('.new-task-form')) return;
+  const form = document.createElement('form');
+  form.className = "new-task-form";
+  // 마감일은 오늘보다 미래만 선택 가능
+  let now = new Date(); now.setHours(0,0,0,0);
+  let tomorrow = new Date(now.getTime()+86400000);
+  let minDate = tomorrow.toISOString().split('T')[0];
+  form.innerHTML = `
+    <input type="text" required maxlength="40" placeholder="업무 제목 (필수)">
+    <textarea rows="2" maxlength="130" placeholder="설명 (선택)"></textarea>
+    <div class="tag-input"></div>
+    <select required>
+      <option value="">담당자 선택</option>
+      ${teamMembers.map(m=>`<option value="${m.id}">${m.name}</option>`).join('')}
+      <option value="0">미지정</option>
+    </select>
+    <input type="date" required min="${minDate}">
+    <div class="new-task-form-actions">
+      <button type="submit">추가</button>
+      <button type="button" class="cancel-btn">취소</button>
+    </div>
+  `;
+  // 태그 입력기능
+  const tagInputDiv = form.querySelector('.tag-input');
+  let tags = [];
+  tagInputDiv.innerHTML = `<span class="tag-add-wrap"><input class="tag-add-input" type="text" placeholder="태그 (Enter)" maxlength="10" /></span>`;
+  const tagInput = tagInputDiv.querySelector('.tag-add-input');
+  tagInput.onkeydown = function(e){
+    if(e.key==='Enter' && this.value.trim()){
+      e.preventDefault();
+      if(tags.length>=4) return alert('태그는 최대 4개까지 입력 가능합니다.');
+      tags.push(this.value.trim());
+      renderTags();
+      this.value='';
+    }
+  };
+  function renderTags(){
+    tagInputDiv.innerHTML = tags.map((tag,idx)=>`<span class="tag">${escapeHTML(tag)} <span class="remove-tag" data-idx="${idx}"><i class="uil uil-times"></i></span></span>`).join('');
+    if(tags.length<4) tagInputDiv.innerHTML += `<span class="tag-add-wrap"><input class="tag-add-input" type="text" placeholder="태그 (Enter)" maxlength="10" /></span>`;
+    tagInputDiv.querySelectorAll('.remove-tag').forEach(btn=>{
+      btn.onclick = function(){
+        tags.splice(+this.dataset.idx,1);
+        renderTags();
+      };
+    });
+    const input = tagInputDiv.querySelector('.tag-add-input');
+    if(input) input.onkeydown = tagInput.onkeydown;
+  }
+  form.onsubmit = function(e){
+    e.preventDefault();
+    const title = form.querySelector('input[type="text"]').value.trim();
+    if(!title) return alert('업무 제목을 입력하세요.');
+    const desc = form.querySelector('textarea').value.trim();
+    const assigned = +form.querySelector('select').value;
+    if(isNaN(assigned)) return alert('담당자를 선택하세요.');
+    const due = form.querySelector('input[type="date"]').value;
+    // 마감일이 오늘이거나 과거면 불가
+    const today = new Date(); today.setHours(0,0,0,0);
+    const inputDate = new Date(due);
+    if(!due || inputDate<=today) return alert('마감일은 오늘 이후만 선택 가능합니다.');
+    tasks.push({
+      id:Date.now(), title, desc, tags:[...tags], assigned, due, status:colKey
+    });
+    renderKanban();
+  };
+  form.querySelector('.cancel-btn').onclick = ()=>{
+    form.remove();
+    colDiv.querySelector('.add-task-btn').style.display = '';
+  };
+  colDiv.querySelector('.add-task-btn').style.display = 'none';
+  colDiv.appendChild(form);
+  form.querySelector('input[type="text"]').focus();
+}
+
+// ===== 드래그 앤 드롭 =====
+function makeDraggableColumn(colDiv) {
+  const taskList = colDiv.querySelector('.task-list');
+  colDiv.ondragover = function(e){
+    e.preventDefault();
+    colDiv.classList.add('drag-over');
+  };
+  colDiv.ondragleave = function(e){
+    colDiv.classList.remove('drag-over');
+  };
+  colDiv.ondrop = function(e){
+    e.preventDefault();
+    colDiv.classList.remove('drag-over');
+    const taskId = +e.dataTransfer.getData('text/plain');
+    const task = tasks.find(t=>t.id===taskId);
+    if(task && task.status !== colDiv.dataset.col){
+      task.status = colDiv.dataset.col;
+      renderKanban();
+    }
+  };
+}
+// ==== 유틸 ======
+function getMemberName(id) {
+  if(!id) return '미지정';
+  const m = teamMembers.find(m=>m.id===id);
+  return m? m.name : '미지정';
+}
+function getMemberImg(id) {
+  const m = teamMembers.find(m=>m.id===id);
+  return m? m.img : 'https://randomuser.me/api/portraits/lego/1.jpg';
+}
+function escapeHTML(str) {
+  if(!str) return '';
+  return str.replace(/[&<>"']/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;', "'":'&#39;' }[s]));
+}
+
+// 초기 렌더
+renderTeamList();
+renderTeamFilterBar();
+renderKanban();
+</script>
+</body>
+</html>
